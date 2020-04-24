@@ -15,8 +15,8 @@ api = TweetsScraper(    consumer_key=os.environ.get("CONSUMER_KEY"),
                         consumer_secret=os.environ.get("CONSUMER_SECRET"),
                         access_token_key=os.environ.get("ACCESS_TOKEN_KEY"),
                         access_token_secret=os.environ.get("ACCESS_TOKEN_SECRET"),
-                        save_dir="tweets_data1"
+                        save_dir="tweets_data4"
                         )
 
-api.get_near_dialogue(user_n=5, dialogue_n=50)
+api.get_near_dialogue(user_n=500, dialogue_n=10000)
 api.save()
