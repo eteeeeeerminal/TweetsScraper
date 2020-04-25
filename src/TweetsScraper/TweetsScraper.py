@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import re
 import codecs
 from time import sleep
 
@@ -39,6 +40,11 @@ class TweetsScraper:
 
         self.save_dir = save_dir
 
+        self.sources = ["TweetDeck", "Twitter Web Client", "Twitter Web App", "Twitter for iPhone",
+               "Twitter for iPad", "Twitter for Android", "Twitter for Android Tablets",
+               "ついっぷる", "Janetter", "twicca", "Keitai Web", "Twitter for Mac", "YoruFukurou"]
+        self.tag_pattern = re.compile(r"<.*?>")
+
         self.logger.info("init TweetsScraper")
 
     def ouath(self):
@@ -56,13 +62,13 @@ class TweetsScraper:
         with open(os.path.join(self.save_dir, "dialogues.json"), 'r', encoding='utf-8', errors='ignore') as f:
             self.dialogues = json.load(f)
 
-    @staticmethod
-    def shape_tweet(tweet):
+    def shape_tweet(self, tweet):
         # Status から dict へ変換
         return {
             "id"        : tweet.id,
             "text"      : tweet.text,
             "user"      : tweet.user.id,
+            "source"    : self.tag_pattern.sub("", str(tweet.source)),
             "reply_to"  : tweet.in_reply_to_status_id,
             "reply_to_user" : tweet.in_reply_to_user_id,
         }
@@ -74,8 +80,7 @@ class TweetsScraper:
 
     def add_dialogue(self, dialogue):
         self.dialogues[dialogue["id_str"]] = dialogue["dialogue"]
-        remove_n = self.remove_same_dialogue()
-        return 1 - remove_n
+        return 1
 
     def get_following(self):
         self.user_queue = self.api.GetFriends()
@@ -120,6 +125,10 @@ class TweetsScraper:
             if not tweet["reply_to"]:
                 continue
 
+            if tweet["source"] not in self.sources:
+                self.logger.info(f"skip a tweet from : {tweet['source']}")
+                continue
+
             if not(d := self.pull_dialogue(tweet)):
                 continue
 
@@ -132,7 +141,7 @@ class TweetsScraper:
 
     def pull_dialogue(self, start_tweet):
         # 1つのリプライから、1連の会話を取得
-        dialogue = {"id_str":"", "dialogue":[]}
+        dialogue = {"id_str":[], "dialogue":[]}
 
         tweet = start_tweet
         while tweet["reply_to"]:
@@ -154,26 +163,15 @@ class TweetsScraper:
                 self.tweets[tweet["id"]] = tweet
                 sleep(1)
 
-            dialogue["id_str"] += str(tweet["id"])
+            dialogue["id_str"].append(str(tweet["id"]))
             dialogue["dialogue"].append({"user":tweet["user"], "text":tweet["text"]})
 
         if len(dialogue["dialogue"]) < 2:
             return None
 
+        dialogue["id_str"] = ''.join(reversed(dialogue["id_str"]))
         dialogue["dialogue"].reverse()
         return dialogue
-
-    def remove_same_dialogue(self):
-        # 消した dialogue の数を返す
-        dialogue_ids = [self.dialogues.keys()]
-        dialogue_ids.sort()
-        remove_n = 0
-        for (i, dialogue_id) in enumerate(dialogue_ids):
-            if any([str(d).find(str(dialogue_id)) for d in dialogue_ids[i:]]):
-                del self.dialogues[dialogue_id]
-                remove_n += 1
-
-        return remove_n
 
     def save(self):
         if not os.path.exists(self.save_dir):
