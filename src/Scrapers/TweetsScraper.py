@@ -1,14 +1,13 @@
 import os
 import json
-import logging
 import re
 import codecs
+import random
+import logging
 from time import sleep
 
 import twitter
 from twitter import TwitterError
-
-# 要素が増えてきたらクラスを分ける
 
 class TweetsScraper:
     def __init__(self, consumer_key, consumer_secret,
@@ -121,7 +120,9 @@ class TweetsScraper:
         self.logger.info(f"get {len(self.tweets)} tweets")
         self.logger.info(f"start making dialogue data")
 
-        for i, tweet in enumerate(list(self.tweets.values())):
+        tweets = list(self.tweets.values())
+        random.shuffle(tweets)
+        for i, tweet in enumerate(tweets):
             if not tweet["reply_to"]:
                 continue
 
