@@ -183,3 +183,5 @@ class TweetsScraper:
 
         with open(os.path.join(self.save_dir, "dialogues.json"), 'w', encoding='utf-8', errors='ignore') as f:
             json.dump(self.dialogues, f, indent=4, ensure_ascii=False)
+
+        self.logger.info(f"saved {self.save_dir}")
