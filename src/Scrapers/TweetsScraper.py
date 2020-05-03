@@ -4,10 +4,13 @@ import re
 import codecs
 import random
 import logging
+from functools import partial
 from time import sleep
 
 import twitter
 from twitter import TwitterError
+
+from .data import read_json, write_json
 
 class TweetsScraper:
     def __init__(self, consumer_key, consumer_secret,
@@ -44,6 +47,8 @@ class TweetsScraper:
                "ついっぷる", "Janetter", "twicca", "Keitai Web", "Twitter for Mac", "YoruFukurou"]
         self.tag_pattern = re.compile(r"<.*?>")
 
+        self.join_save_dir = partial(os.path.join, self.save_dir)
+
         self.logger.info("init TweetsScraper")
 
     def ouath(self):
@@ -55,11 +60,8 @@ class TweetsScraper:
 
 
     def load_data(self, load_dir):
-        with open(os.path.join(self.save_dir, "tweets.json"), 'r', encoding='utf-8', errors='ignore') as f:
-            self.tweets = json.load(f)
-
-        with open(os.path.join(self.save_dir, "dialogues.json"), 'r', encoding='utf-8', errors='ignore') as f:
-            self.dialogues = json.load(f)
+        self.tweets = read_json(self.join_save_dir("tweets.json"))
+        self.dialogues = read_json(self.join_save_dir("dialogues.json"))
 
     def shape_tweet(self, tweet):
         # Status から dict へ変換
@@ -86,7 +88,7 @@ class TweetsScraper:
         self.user_queue = [u.id for u in self.user_queue]
         return len(self.user_queue)
 
-    def get_near_dialogue(self, user_n=50, dialogue_n=200):
+    def get_near_dialogue(self, user_n=50, dialogue_n=200, save_n=1000):
         self.get_following()
         self.logger.info(f"get : {len(self.user_queue)} users")
         self.logger.info(f"start get timeline")
@@ -108,7 +110,11 @@ class TweetsScraper:
 
             reply_tweets = [t for t in timeline if t.get("reply_to")]
             # reply_tweets から 次に探索すべき ユーザーを取り出す
-            add_user_n = len([self.user_queue.append(t["reply_to_user"]) for t in reply_tweets if t["reply_to_user"] not in self.user_queue])
+            add_user_n = len([
+                self.user_queue.append(t["reply_to_user"])
+                    for t in reply_tweets
+                    if t["reply_to_user"] not in self.user_queue
+            ])
             self.logger.info(f"add {add_user_n} users")
 
             if i >= user_n:
@@ -137,7 +143,7 @@ class TweetsScraper:
             if dialogue_n <= 0:
                 break
 
-            if i % 1000 == 0:
+            if i % save_n == 0:
                 self.save()
 
     def pull_dialogue(self, start_tweet):
@@ -178,10 +184,7 @@ class TweetsScraper:
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
 
-        with codecs.open(os.path.join(self.save_dir, "tweets.json"), 'w', encoding='utf-8', errors='ignore') as f:
-            json.dump(self.tweets, f, indent=4, ensure_ascii=False)
-
-        with open(os.path.join(self.save_dir, "dialogues.json"), 'w', encoding='utf-8', errors='ignore') as f:
-            json.dump(self.dialogues, f, indent=4, ensure_ascii=False)
+        write_json(self.join_save_dir("tweets.json"), self.tweets)
+        write_json(self.join_save_dir("dialogues.json"), self.dialogues)
 
         self.logger.info(f"saved {self.save_dir}")
