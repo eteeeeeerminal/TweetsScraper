@@ -5,7 +5,7 @@ import json
 
 # 参考 : https://github.com/pusaitou/mikochiku_alarm
 
-from .data import get_item
+from .utils import _get_item
 
 class YouTubeScraper:
     headers = {
@@ -53,10 +53,10 @@ class YouTubeScraper:
     def extract_video_ids(self, info, only_live=True):
         # ページから取得した情報から必要な情報だけ抜き取る
 
-        contents = get_item(info, self.p_contents) or []
+        contents = _get_item(info, self.p_contents) or []
 
-        return [get_item(c, self.px_vid) for c in contents
-                if (not only_live) or get_item(c, self.px_status) == 'LIVE']
+        return [_get_item(c, self.px_vid) for c in contents
+                if (not only_live) or _get_item(c, self.px_status) == 'LIVE']
 
     def get_video_pages(self, channel_id):
         url = f'https://m.youtube.com/channel/{channel_id}/videos'

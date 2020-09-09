@@ -1,6 +1,8 @@
 import requests
 import os
 
+from .utils import _shape_params
+
 # 参考 : https://github.com/aozorahack/pubserver2
 # 参考 : https://github.com/aozorahack/aozora-cli
 
@@ -52,12 +54,3 @@ def get_ranking(
 
 def _aozora_get(path:str, params={}) -> requests.Response:
     return requests.get(f"{AOZORAPI_URL}/{path}", params=params)
-
-def _shape_params(params:dict) -> dict:
-    return {
-        key:value for (key, value) in params.items()
-        if value is not None
-    }
-
-if __name__ == "__main__":
-    print(get_booktxt(2093).text)

@@ -10,8 +10,7 @@ from time import sleep
 import twitter
 from twitter import TwitterError
 
-from .data import read_json, write_json
-from .config import logger
+from .utils import logger, _read_json, _write_json
 
 class TweetsScraper:
     def __init__(self, consumer_key, consumer_secret,
@@ -55,8 +54,8 @@ class TweetsScraper:
 
 
     def load_data(self, load_dir):
-        self.tweets = read_json(self.join_save_dir("tweets.json"))
-        self.dialogues = read_json(self.join_save_dir("dialogues.json"))
+        self.tweets = _read_json(self.join_save_dir("tweets.json"))
+        self.dialogues = _read_json(self.join_save_dir("dialogues.json"))
 
     def shape_tweet(self, tweet):
         # Status から dict へ変換
@@ -179,7 +178,7 @@ class TweetsScraper:
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
 
-        write_json(self.join_save_dir("tweets.json"), self.tweets)
-        write_json(self.join_save_dir("dialogues.json"), self.dialogues)
+        _write_json(self.join_save_dir("tweets.json"), self.tweets)
+        _write_json(self.join_save_dir("dialogues.json"), self.dialogues)
 
         self.logger.info(f"saved {self.save_dir}")
