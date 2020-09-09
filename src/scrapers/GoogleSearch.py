@@ -11,7 +11,7 @@ from .utils import logger, _write_json
 class Google:
 
     SEARCH_URL = 'https://www.google.co.jp/search'
-    SLEEP_TIME = 3
+    SLEEP_TIME = 1
 
     def __init__(self, logger=logger(__name__)):
         self.session = requests.Session()
@@ -25,14 +25,15 @@ class Google:
         self.gotten_links = []
 
     def search(self, keyword,
-        muximum_pagenum=10, linknum_per_page=10,
+        maximum=10, linknum_per_page=50,
         ):
-        if muximum_pagenum <= 0 or linknum_per_page <= 0:
+        if maximum <= 0 or linknum_per_page <= 0:
             return
 
         self.logger.info(f"start google search : {keyword}")
+        total = 0
         result = {"keyword":keyword, "gotten_links":[]}
-        for page in range(muximum_pagenum):
+        for page in range(maximum):
             params = {
                 'q' : keyword,
                 'num' : linknum_per_page,
@@ -49,7 +50,11 @@ class Google:
             if not len(links):
                 self.logger.info("got all links")
                 break
+            elif len(links) > maximum - total:
+                result.extend(links[:maximum - total])
+                break
 
+            total += len(links)
             result["gotten_links"].extend(links)
             sleep(self.SLEEP_TIME)
 
