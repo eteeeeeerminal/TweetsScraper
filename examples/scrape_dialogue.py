@@ -4,7 +4,7 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 
 sys.path.append("../src")
-from Scrapers import TweetsScraper
+from scrapers import TweetsScraper
 
 # キーを取得
 load_dotenv(verbose=True)
@@ -22,5 +22,5 @@ api = TweetsScraper(    consumer_key=os.environ.get("CONSUMER_KEY"),
                         save_dir=save_dir
                         )
 
-api.get_near_dialogue(user_n=500, dialogue_n=100000, save_n=1000)
+api.get_near_dialogue(user_n=10, dialogue_n=10, save_n=10)
 api.save()
