@@ -1,20 +1,21 @@
-# Scrapers
+# scrapers
 スクレイピング用のスクリプト集
+
+## AozoraBunkoAPI
+青空文庫APIのラッパー的なやつ。
+参考 : https://github.com/aozorahack/pubserver2
 
 ## TweetsScraper
 自分のアカウントがフォローしている人をたどって、対話を集めます
 
 ## YouTubeCommentScraper
-youtube の livechat を集めます
+そのうち作る
 
-# utils
+# scrapers_datautils
 スクレイピングしたデータを整形する用
 
 ## convert_tsv.py
 json 形式で保存したデータを \t 区切りへ変換する
 話者は、特殊トークンで識別する
-
-## remove_similar_text.py
-YouTubeのコメントで、被りや、連続する似たコメントを削除するこで、データ量を減らします
 
 # 特殊トークン
