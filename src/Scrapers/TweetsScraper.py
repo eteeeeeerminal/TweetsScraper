@@ -11,18 +11,13 @@ import twitter
 from twitter import TwitterError
 
 from .data import read_json, write_json
+from .config import logger
 
 class TweetsScraper:
     def __init__(self, consumer_key, consumer_secret,
                         access_token_key, access_token_secret,
                         save_dir="",
-                        logger=logging.getLogger(__name__)):
-
-        handler = logging.StreamHandler()
-        handler.setLevel(logging.DEBUG)
-        logger.setLevel(logging.DEBUG)
-        logger.addHandler(handler)
-        logger.propagate = False
+                        logger=logger(__name__)):
 
         self.logger = logger
         self.consumer_key = consumer_key
