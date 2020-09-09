@@ -11,7 +11,7 @@ from .utils import logger, _write_json
 class Google:
 
     SEARCH_URL = 'https://www.google.co.jp/search'
-    SLEEP_TIME = 1
+    SLEEP_TIME = 3
 
     def __init__(self, logger=logger(__name__)):
         self.session = requests.Session()
@@ -25,7 +25,7 @@ class Google:
         self.gotten_links = []
 
     def search(self, keyword,
-        muximum_pagenum=10, linknum_per_page=100,
+        muximum_pagenum=10, linknum_per_page=10,
         ):
         if muximum_pagenum <= 0 or linknum_per_page <= 0:
             return
