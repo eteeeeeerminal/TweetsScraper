@@ -12,44 +12,51 @@ class AozoraBunkoScraper:
 
     SLEEP_TIME = 5
 
-    def __init__(self, save_dir, logger=logger(__name__)):
-        self.aozorapi = AozoraBunkoAPI()
+    def __init__(self,
+        save_dir, aozorapi=AozoraBunkoAPI(), logger=logger(__name__)
+        ):
+        self.aozorapi = aozorapi
         self.logger = logger
         self.save_dir = save_dir
         self.gotton_books = []
 
     def get_thepersons_books(self,
-        auther_name, maximum=100, save_n=10
+        author_name, maximum=100, save_n=10
         ) -> list:
-        pass
+        book_list = self.aozorapi.get_booklist(author=author_name).json()
+        self.logger.info(f"found {len(book_list)} books")
+        book_list = book_list[:maximum]
+        return self.get_books(book_list, save_n=save_n)
 
     def get_ranking_books(self,
         maximum=500, save_n=50, year=2020, month=1
         ) -> list:
 
         ranking = self.aozorapi.get_ranking(year, month).json()
-        ranking_books = []
         self.logger.info(f"got ranking : num {len(ranking)}")
-        for i, book_info in enumerate(ranking):
-            if i >= maximum:
-                break
+        ranking = ranking[:maximum]
+        return self.get_books(ranking, save_n=save_n)
 
+    def get_books(self, book_list, save_n=50):
+        books = []
+        for i, book_info in enumerate(book_list):
             book_data = {
                 'id' : book_info["book_id"],
                 'title' : book_info["title"],
                 'authors' : book_info["authors"],
-                'content' : self.aozorapi.get_booktxt(book_info["book_id"]).text
+                'content' :
+                    self.aozorapi.get_booktxt(book_info["book_id"]).text
             }
-            ranking_books.append(book_data)
+            books.append(book_data)
 
             if i % save_n == 0:
                 self.save()
 
             sleep(self.SLEEP_TIME)
 
-        self.gotton_books.extend(ranking_books)
-        self.logger.info(f"got {len(ranking_books)} books")
-        return ranking_books
+        self.gotton_books.extend(books)
+        self.logger.info(f"got {len(books)} books")
+
 
     def save(self):
         if not os.path.exists(self.save_dir):
