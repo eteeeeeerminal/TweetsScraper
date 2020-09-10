@@ -1,4 +1,5 @@
 from .TweetsScraper import TweetsScraper
 from .YouTubeScraper import YouTubeScraper
-from . import AozoraBunkoAPI
+from .AozoraBunkoAPI import AozoraBunkoAPI
+from .AozoraBunkoScraper import AozoraBunkoScraper
 from .GoogleSearch import Google
