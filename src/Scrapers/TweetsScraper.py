@@ -53,9 +53,19 @@ class TweetsScraper:
                                 sleep_on_rate_limit=True)
 
 
-    def load_data(self, load_dir):
-        self.tweets = _read_json(self.join_save_dir("tweets.json"))
-        self.dialogues = _read_json(self.join_save_dir("dialogues.json"))
+    def load_data(self, load_dir:str=None):
+        if load_dir is None:
+            join_dir = self.join_save_dir
+        else:
+            join_dir = partial(os.path.join, load_dir)
+
+        if os.path.exists(tweets_path := join_dir("tweets.json")):
+            self.tweets = _read_json(tweets_path)
+            self.logger.info(f"load tweets data")
+
+        if os.path.exists(dialogues_path := join_dir("dialogues.json")):
+            self.logger.info(f"dialogues tweets data")
+            self.dialogues = _read_json(dialogues_path)
 
     def shape_tweet(self, tweet):
         # Status から dict へ変換
@@ -178,7 +188,11 @@ class TweetsScraper:
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
 
-        _write_json(self.join_save_dir("tweets.json"), self.tweets)
-        _write_json(self.join_save_dir("dialogues.json"), self.dialogues)
+        if len(self.tweets) > 0:
+            _write_json(self.join_save_dir("tweets.json"), self.tweets)
+            self.logger.info(f"save tweets data")
+        if len(self.dialogues) > 0:
+            _write_json(self.join_save_dir("dialogues.json"), self.dialogues)
+            self.logger.info(f"save dialogues data")
 
         self.logger.info(f"saved {self.save_dir}")
