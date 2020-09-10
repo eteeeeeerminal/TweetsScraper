@@ -51,7 +51,7 @@ class Google:
                 self.logger.info("got all links")
                 break
             elif len(links) > maximum - total:
-                result.extend(links[:maximum - total])
+                result["gotten_links"].extend(links[:maximum - total])
                 break
 
             total += len(links)
