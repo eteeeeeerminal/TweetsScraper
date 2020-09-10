@@ -9,4 +9,5 @@ while os.path.exists(save_dir:=f"googlesearch{i}"):
 
 google = Google()
 google.search("hogehoge")
+google.suggest("hogehoge")
 google.save(save_dir)
