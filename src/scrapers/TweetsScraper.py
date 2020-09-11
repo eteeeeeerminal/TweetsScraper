@@ -40,6 +40,7 @@ class TweetsScraper:
                "Twitter for iPad", "Twitter for Android", "Twitter for Android Tablets",
                "ついっぷる", "Janetter", "twicca", "Keitai Web", "Twitter for Mac", "YoruFukurou"]
         self.tag_pattern = re.compile(r"<.*?>")
+        self.rt_pattern = re.compile(r"RT @[_a-zA-Z0-9]{1,15}: *.")
 
         self.join_save_dir = partial(os.path.join, self.save_dir)
 
@@ -98,14 +99,18 @@ class TweetsScraper:
         self.logger.info(f"start get timeline")
         for i, user in enumerate(self.user_queue):
             try:
-                timeline = self.api.GetUserTimeline(user_id=user, count=200, exclude_replies=False)
+                timeline = self.api.GetUserTimeline(
+                    user_id=user, count=200, exclude_replies=False
+                    )
             except TwitterError as e:
                     self.logger.info(e.args[0])
                     if 'limit' not in e.args:
                         continue
 
                     self.logger.info("wait about 15m")
-                    timeline = self.api.GetUserTimeline(user_id=user, count=200, exclude_replies=False)
+                    timeline = self.api.GetUserTimeline(
+                        user_id=user, count=200, exclude_replies=False
+                        )
 
             self.logger.info(f"get user {i}")
 
@@ -179,7 +184,9 @@ class TweetsScraper:
                 sleep(1)
 
             dialogue["id_str"].append(str(tweet["id"]))
-            dialogue["dialogue"].append({"user":tweet["user"], "text":tweet["text"]})
+            dialogue["dialogue"].append({
+                "user":tweet["user"], "text":tweet["text"]
+                })
 
         if len(dialogue["dialogue"]) < 2:
             return None
@@ -188,17 +195,29 @@ class TweetsScraper:
         dialogue["dialogue"].reverse()
         return dialogue
 
-    def search_tweets(self, keyword, maximum=1000, result_type="mixed"):
+    def search_tweets(self, keyword,
+        maximum=1000, retweets=False, result_type="mixed", lang="ja"
+        ):
         # see https://twitter.com/search-advanced
         self.logger.info(f"start get tweet search")
         max_id = None
         tweet_n = 0
         for i in range(maximum):
-            tweets = self.api.GetSearch(term=keyword, max_id=max_id, result_type=result_type)
+            tweets = self.api.GetSearch(
+                term=keyword, max_id=max_id,
+                count=100, result_type=result_type,
+                lang=lang
+                )
             max_id  = tweets[-1].id -1
-            print(max_id)
             tweets = [self.shape_tweet(t) for t in tweets]
             tweets = [t for t in tweets if t["source"] in self.sources]
+            if not retweets:
+                tweets = [
+                    t for t in tweets if not self.rt_pattern.match(t["text"])
+                    ]
+
+            tweets = tweets[:min(maximum, len(tweets))]
+
             self.add_tweets(tweets)
             tweet_n += len(tweets)
             if(tweet_n >= maximum):
