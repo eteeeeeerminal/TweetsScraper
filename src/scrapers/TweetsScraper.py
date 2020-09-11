@@ -128,6 +128,10 @@ class TweetsScraper:
 
         self.logger.info(f"get user_queue : {i} users")
         self.logger.info(f"get {len(self.tweets)} tweets")
+        self.get_dialogue(dialogue_n=dialogue_n, save_n=save_n)
+
+    def get_dialogue(self, dialogue_n=200, save_n=1000):
+        # self.tweets の ツイートをもとに、会話を取得する
         self.logger.info(f"start making dialogue data")
 
         tweets = list(self.tweets.values())
@@ -183,6 +187,28 @@ class TweetsScraper:
         dialogue["id_str"] = ''.join(reversed(dialogue["id_str"]))
         dialogue["dialogue"].reverse()
         return dialogue
+
+    def search_tweets(self, keyword, maximum=1000):
+        # see https://twitter.com/search-advanced
+        self.logger.info(f"start get tweet search")
+        max_id = None
+        tweet_n = 0
+        for i in range(maximum):
+            tweets = self.api.GetSearch(term=keyword, max_id=max_id, result_type="recent")
+            max_id  = tweets[-1].id -1
+            print(max_id)
+            tweets = [self.shape_tweet(t) for t in tweets]
+            tweets = [t for t in tweets if t["source"] in self.sources]
+            self.add_tweets(tweets)
+            tweet_n += len(tweets)
+            if(tweet_n >= maximum):
+                break
+            elif not tweets:
+                break
+            sleep(1)
+
+        self.logger.info(f"got {tweet_n} tweets")
+        return self.tweets
 
     def save(self):
         if not os.path.exists(self.save_dir):
