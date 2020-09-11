@@ -64,8 +64,8 @@ class TweetsScraper:
             self.logger.info(f"load tweets data")
 
         if os.path.exists(dialogues_path := join_dir("dialogues.json")):
-            self.logger.info(f"dialogues tweets data")
             self.dialogues = _read_json(dialogues_path)
+            self.logger.info(f"load dialogues data")
 
     def shape_tweet(self, tweet):
         # Status から dict へ変換
