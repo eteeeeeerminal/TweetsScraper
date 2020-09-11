@@ -188,13 +188,13 @@ class TweetsScraper:
         dialogue["dialogue"].reverse()
         return dialogue
 
-    def search_tweets(self, keyword, maximum=1000):
+    def search_tweets(self, keyword, maximum=1000, result_type="mixed"):
         # see https://twitter.com/search-advanced
         self.logger.info(f"start get tweet search")
         max_id = None
         tweet_n = 0
         for i in range(maximum):
-            tweets = self.api.GetSearch(term=keyword, max_id=max_id, result_type="recent")
+            tweets = self.api.GetSearch(term=keyword, max_id=max_id, result_type=result_type)
             max_id  = tweets[-1].id -1
             print(max_id)
             tweets = [self.shape_tweet(t) for t in tweets]
