@@ -230,8 +230,7 @@ class TweetsScraper:
         return self.tweets
 
     def save(self):
-        if not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
+        os.makedirs(self.save_dir, exist_ok=True)
 
         if len(self.tweets) > 0:
             _write_json(self.join_save_dir("tweets.json"), self.tweets)

@@ -59,8 +59,7 @@ class AozoraBunkoScraper:
 
 
     def save(self):
-        if not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
+        os.makedirs(self.save_dir, exist_ok=True)
 
         _write_json(
             os.path.join(self.save_dir, "books.json"),

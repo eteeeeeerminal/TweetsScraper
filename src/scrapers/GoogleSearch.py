@@ -100,8 +100,7 @@ class GoogleSearch:
         return [e['href'] for e in elements]
 
     def save(self, save_dir):
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        os.makedirs(self.save_dir, exist_ok=True)
 
         _write_json(
             os.path.join(save_dir, "search_result.json"),
