@@ -1,6 +1,4 @@
 import os
-import sys
-sys.path.append("../src")
 from scrapers import AozoraBunkoScraper
 
 i = 1

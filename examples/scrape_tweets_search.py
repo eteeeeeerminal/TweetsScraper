@@ -1,9 +1,7 @@
-import sys
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
 
-sys.path.append("../src")
 from scrapers import TweetsScraper
 
 # キーを取得

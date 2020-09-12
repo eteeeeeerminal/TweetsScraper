@@ -1,5 +1,3 @@
-import sys
-sys.path.append("../src")
 from scrapers import AozoraBunkoAPI
 
 aozora = AozoraBunkoAPI()
