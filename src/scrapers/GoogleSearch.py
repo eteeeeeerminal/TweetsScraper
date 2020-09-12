@@ -9,7 +9,7 @@ from .utils import logger, _write_json
 
 # 参考 : https://github.com/derodero24/Deropy/blob/master/google.py
 
-class Google:
+class GoogleSearch:
 
     SEARCH_URL = 'https://www.google.co.jp/search'
     SUGGEST_URL = 'http://www.google.co.jp/complete/search'
