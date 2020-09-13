@@ -56,6 +56,7 @@ class AozoraBunkoScraper:
 
         self.gotton_books.extend(books)
         self.logger.info(f"got {len(books)} books")
+        return books
 
 
     def save(self):
