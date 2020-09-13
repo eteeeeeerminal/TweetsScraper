@@ -65,7 +65,7 @@ class GoogleSearch:
         self.logger.info(f"got {total} links")
         return result
 
-    def suggest(self, keyword, jpn=False, alph=False, num=False) -> dict:
+    def suggest(self, keyword, maximum=20, jpn=False, alph=False, num=False) -> dict:
         # 検索ワード + 1文字
         chars = ['', ' ']
         chars += [' ' + chr(i) for i in range(12353, 12436)] if jpn else []
@@ -74,7 +74,10 @@ class GoogleSearch:
 
         self.logger.info(f"start get google suggests : {keyword}")
         result = {"keyword":keyword, "suggested_words":[]}
-        for c in chars:
+        for i, c in enumerate(chars):
+            if(i >= maximum):
+                break
+
             params= {
                 'output':'toolbar',
                 'ie':'utf-8', 'oe':'utf-8',
