@@ -74,8 +74,8 @@ class GoogleSearch:
 
         self.logger.info(f"start get google suggests : {keyword}")
         result = {"keyword":keyword, "suggested_words":[]}
-        for i, c in enumerate(chars):
-            if(i >= maximum):
+        for c in chars:
+            if(len(result["suggested_words"] >= maximum)):
                 break
 
             params= {
@@ -92,6 +92,7 @@ class GoogleSearch:
             result["suggested_words"] += response.json()[1]
             sleep(self.SLEEP_TIME)
 
+        result["suggested_words"] = result["suggested_words"][:maximum]
         total = len(result["suggested_words"])
         self.gotten_data.append(result)
         self.logger.info(f"got {total} words")
