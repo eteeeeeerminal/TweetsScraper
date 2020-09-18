@@ -3,7 +3,7 @@ import os
 from time import sleep
 
 from . import AozoraBunkoAPI
-from .utils import logger, _write_json, _shape_params
+from .utils import get_logger, _write_json, _shape_params
 
 # 参考 : https://github.com/aozorahack/pubserver2
 # 参考 : https://github.com/aozorahack/aozora-cli
@@ -13,7 +13,7 @@ class AozoraBunkoScraper:
     SLEEP_TIME = 5
 
     def __init__(self,
-        save_dir, aozorapi=AozoraBunkoAPI(), logger=logger(__name__)
+        save_dir, aozorapi=AozoraBunkoAPI(), logger=get_logger(__name__)
         ):
         self.aozorapi = aozorapi
         self.logger = logger

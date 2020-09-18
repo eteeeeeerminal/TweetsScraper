@@ -3,20 +3,19 @@ import json
 import re
 import codecs
 import random
-import logging
 from functools import partial
 from time import sleep
 
 import twitter
 from twitter import TwitterError
 
-from .utils import logger, _read_json, _write_json
+from .utils import get_logger, _read_json, _write_json
 
 class TweetsScraper:
     def __init__(self, consumer_key, consumer_secret,
                         access_token_key, access_token_secret,
                         save_dir="",
-                        logger=logger(__name__)):
+                        logger=get_logger(__name__)):
 
         self.logger = logger
         self.consumer_key = consumer_key

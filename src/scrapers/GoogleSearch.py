@@ -5,7 +5,7 @@ from time import sleep
 
 from bs4 import BeautifulSoup
 
-from .utils import logger, _write_json
+from .utils import get_logger, _write_json
 
 # 参考 : https://github.com/derodero24/Deropy/blob/master/google.py
 
@@ -15,7 +15,7 @@ class GoogleSearch:
     SUGGEST_URL = 'http://www.google.co.jp/complete/search'
     SLEEP_TIME = 1
 
-    def __init__(self, logger=logger(__name__)):
+    def __init__(self, logger=get_logger(__name__)):
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': (
@@ -75,7 +75,7 @@ class GoogleSearch:
         self.logger.info(f"start get google suggests : {keyword}")
         result = {"keyword":keyword, "suggested_words":[]}
         for c in chars:
-            if(len(result["suggested_words"] >= maximum)):
+            if(len(result["suggested_words"]) >= maximum):
                 break
 
             params= {
