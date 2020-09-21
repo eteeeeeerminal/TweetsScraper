@@ -24,11 +24,11 @@ class NarouScraper:
         self.logger = logger
         self.gotten_books = {}
 
-    def get_books_thegenre(self, genre, maximum=50, parts_per_novel=10, save_n=50):
-        lim = min(maximum, 100)
+    def get_books_thegenre(self, genre, novel_n=50, parts_per_novel=10, save_n=50):
+        lim = min(novel_n, 100)
         total = 0
         self.logger.info("start getting novel list")
-        while maximum > total:
+        while novel_n > total:
             book_datas = narou_get("t-n-u-w-ga", lim, total, genre=genre)
             if (n := len(book_datas)) <= 0:
                 break
