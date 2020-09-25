@@ -10,6 +10,9 @@ Google検索をスクレイピングするやつ。
 青空文庫APIのラッパー的なやつ。  
 参考 : https://github.com/aozorahack/pubserver2
 
+## NarouScraper
+小説家になろうの小説をスクレイピングするやつ。
+
 ## TweetsScraper
 自分のアカウントがフォローしている人をたどって、対話を集めます
 
