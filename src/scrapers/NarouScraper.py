@@ -13,6 +13,12 @@ class NarouScraper:
     SLEEP_TIME = 5
 
     def __init__(self, save_dir, logger=get_logger(__name__)):
+        self.make_session()
+        self.save_dir = save_dir
+        self.logger = logger
+        self.gotten_books = {}
+
+    def make_session(self):
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': (
@@ -20,9 +26,6 @@ class NarouScraper:
                 "Gecko/20100101 Firefox/57.0"
             )
         })
-        self.save_dir = save_dir
-        self.logger = logger
-        self.gotten_books = {}
 
     def get_books_thegenre(self, genre, novel_n=50, parts_per_novel=10, save_n=50):
         lim = min(novel_n, 100)
@@ -56,10 +59,17 @@ class NarouScraper:
                     self.logger.info("over parts_n break")
                     break
                 url = f"{self.NOVEL_URL}/{ncode}/{n}"
-                response = self.session.get(url)
-                if response.status_code != requests.codes.ok:
-                    self.logger.warn(f"got status code {response.status_code}")
-                    break
+                try:
+                    response = self.session.get(url)
+                    if response.status_code != requests.codes.ok:
+                        self.logger.warn(f"got status code {response.status_code}")
+                        break
+                except requests.exceptions.ConnectionError:
+                    self.logger.error(f"connection error, restart session")
+                    sleep(self.SLEEP_TIME)
+                    self.make_session()
+                    response = self.session.get(url)
+
                 html = response.text
                 soup = BeautifulSoup(html, "html.parser")
 
