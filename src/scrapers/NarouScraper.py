@@ -1,6 +1,7 @@
 import os
 import requests
 from time import sleep
+from typing import Union
 
 from bs4 import BeautifulSoup
 
@@ -45,6 +46,25 @@ class NarouScraper:
         self.logger.info("got novel list")
         self.download_novels(save_n, parts_per_novel)
 
+    def get_novel(self, ncode:str, n:Union[str, int]) -> Union[str, None]:
+        url = f"{self.NOVEL_URL}/{ncode}/{n}"
+        try:
+            response = self.session.get(url)
+            if response.status_code != requests.codes.ok:
+                self.logger.warn(f"got status code {response.status_code}")
+                return None
+
+        except requests.exceptions.ConnectionError:
+            self.logger.error(f"connection error, restart session")
+            sleep(self.SLEEP_TIME)
+            self.make_session()
+            response = self.session.get(url)
+
+        html = response.text
+        soup = BeautifulSoup(html, "html.parser")
+        return soup.select_one("#novel_honbun").text
+
+
     def download_novels(self, save_n, parts_per_novel):
         self.logger.info("start download novels")
         gotten_parts_n = 0
@@ -58,22 +78,11 @@ class NarouScraper:
                 if n > parts_per_novel:
                     self.logger.info("over parts_n break")
                     break
-                url = f"{self.NOVEL_URL}/{ncode}/{n}"
-                try:
-                    response = self.session.get(url)
-                    if response.status_code != requests.codes.ok:
-                        self.logger.warn(f"got status code {response.status_code}")
-                        break
-                except requests.exceptions.ConnectionError:
-                    self.logger.error(f"connection error, restart session")
-                    sleep(self.SLEEP_TIME)
-                    self.make_session()
-                    response = self.session.get(url)
+                text = self.get_novel(ncode, n)
+                if text is None:
+                    break
 
-                html = response.text
-                soup = BeautifulSoup(html, "html.parser")
-
-                bodies.append(soup.select_one("#novel_honbun").text)
+                bodies.append(text)
                 gotten_parts_n += 1
                 if gotten_parts_n % save_n == 0:
                     self.save()
@@ -85,7 +94,6 @@ class NarouScraper:
                 f"got {gotten_n}(out_of {story_n+1}) parts of novel {ndata.get('title')}"
                 )
             sleep(self.SLEEP_TIME*4)
-
 
     def save(self):
         os.makedirs(self.save_dir, exist_ok=True)
