@@ -50,7 +50,9 @@ class AozoraBunkoScraper:
             books.append(book_data)
 
             if i % save_n == 0:
+                self.gotton_books.extend(books)
                 self.save()
+                books = []
 
             sleep(self.SLEEP_TIME)
 
