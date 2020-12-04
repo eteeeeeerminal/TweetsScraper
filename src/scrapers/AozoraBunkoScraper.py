@@ -66,4 +66,6 @@ class AozoraBunkoScraper:
             os.path.join(self.save_dir, "books.json"),
             {"books":self.gotton_books}
         )
-        self.logger.info(f"saved {self.save_dir}")
+        self.logger.info(
+            f"saved {len(self.gotton_books)} books to {self.save_dir}"
+        )
