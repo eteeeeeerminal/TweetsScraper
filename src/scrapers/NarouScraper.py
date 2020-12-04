@@ -85,6 +85,7 @@ class NarouScraper:
                 bodies.append(text)
                 gotten_parts_n += 1
                 if gotten_parts_n % save_n == 0:
+                    self.gotten_books[ncode]['content'] = bodies
                     self.save()
                 sleep(self.SLEEP_TIME)
 
