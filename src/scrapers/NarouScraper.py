@@ -28,7 +28,7 @@ class NarouScraper:
             )
         })
 
-    def get_books_thegenre(self, genre, novel_n=50, parts_per_novel=10, save_n=50):
+    def get_books_thegenre(self, genre, novel_n=50, parts_max=10, parts_min=10, save_n=50):
         lim = min(novel_n, 100)
         total = 0
         self.logger.info("start getting novel list")
@@ -44,7 +44,7 @@ class NarouScraper:
             })
             sleep(self.SLEEP_TIME)
         self.logger.info("got novel list")
-        self.download_novels(save_n, parts_per_novel)
+        self.download_novels(save_n, parts_max, parts_min)
 
     def get_novel(self, ncode:str, n:Union[str, int]) -> Union[str, None]:
         url = f"{self.NOVEL_URL}/{ncode}/{n}"
@@ -65,17 +65,25 @@ class NarouScraper:
         return soup.select_one("#novel_honbun").text
 
 
-    def download_novels(self, save_n, parts_per_novel):
+    def download_novels(self, save_n, parts_max, parts_min=1):
         self.logger.info("start download novels")
         gotten_parts_n = 0
         for ncode, ndata in self.gotten_books.items():
             if ncode is None:
+                self.logger.info(f"ncode not found {ndata.get('title')}")
                 continue
-            self.logger.info(f"start downloading {ndata.get('title')}")
             story_n = ndata.get('general_all_no', 1)
+
+            if story_n < parts_min:
+                self.logger.info(
+                    f"Skip: {ndata.get('title')} has just {story_n} parts."
+                )
+                continue
+
+            self.logger.info(f"start downloading {ndata.get('title')}")
             bodies = []
             for n in range(1, story_n+1):
-                if n > parts_per_novel:
+                if n > parts_max:
                     self.logger.info("over parts_n break")
                     break
                 text = self.get_novel(ncode, n)
@@ -90,7 +98,7 @@ class NarouScraper:
                 sleep(self.SLEEP_TIME)
 
             self.gotten_books[ncode]['content'] = bodies
-            gotten_n = min(parts_per_novel,story_n+1)
+            gotten_n = len(bodies)
             self.logger.info(
                 f"got {gotten_n}(out_of {story_n+1}) parts of novel {ndata.get('title')}"
                 )
